@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import OAuth from '../components/OAuth';
 import { useDispatch, useSelector } from 'react-redux';
-import { signInFailure, signInSuccess, signInStart } from '../redux/user/userSlice';
+import { signInFailure, signInSuccess, signInStart, deleteUserFailure,
+  deleteUserStart,
+  deleteUserSuccess, } from '../redux/user/userSlice.js';
 
 
 export default function Signin() {
@@ -40,6 +42,26 @@ export default function Signin() {
    dispatch(signInFailure(error.message));
     }
   };
+
+  
+  const handleDeleteUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-3xl text-center font-semibold my-7'>Sign In</h1>
@@ -69,6 +91,8 @@ export default function Signin() {
         <OAuth/>
       </form>
       <div className='flex gap-2 mt-5'>
+      
+
         <p>Don't have an account?</p>
         <Link to={'/sign-up'}>
           <span className='text-blue-700'>Sign Up</span>
